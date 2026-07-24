@@ -4,8 +4,11 @@ on:
 
   schedule:
 
-    # Every 5 minutes (7 days a week)
-    - cron: "*/5 * * * *"
+    # 10:00 PM Egypt (19:00 UTC) - Check In
+    - cron: "0 19 * * *"
+
+    # 11:00 PM Egypt (20:00 UTC) - Check Out
+    - cron: "0 20 * * *"
 
   workflow_dispatch:
 

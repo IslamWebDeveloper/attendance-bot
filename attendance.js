@@ -69,23 +69,6 @@ const login = require("./login");
 
             console.log("Check In completed successfully.");
 
-            console.log("Waiting 2 minutes (120 seconds) before Check Out...");
-            await page.waitForTimeout(120000);
-
-            console.log("Refreshing page to Check Out...");
-            await page.reload({ waitUntil: "networkidle" });
-
-            const checkOutBtnAfter = page.locator('a.btn, button.btn, .btn').filter({ hasText: /check out/i }).first();
-            try {
-                await checkOutBtnAfter.waitFor({ state: "visible", timeout: 5000 });
-                console.log("Checking Out...");
-                await checkOutBtnAfter.click();
-                await page.waitForLoadState("networkidle");
-                console.log("Check Out completed successfully.");
-            } catch (e) {
-                console.log("Check Out button not found after 2 minutes.");
-            }
-
         }
 
         else if (isCheckOutVisible) {
