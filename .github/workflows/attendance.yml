@@ -5,10 +5,10 @@ on:
   schedule:
 
     # 7:51 PM Egypt (16:51 UTC during UTC+3)
-    - cron: "0 17 * * *"
+    - cron: cron: "3 17 * * *"
 
     # 7:55 PM Egypt (16:55 UTC during UTC+3)
-    - cron: "2 17 * * *"
+    - cron: cron: "5 17 * * *"
 
   workflow_dispatch:
 
