@@ -6,21 +6,24 @@ const login = require("./login");
 
 (async () => {
 
-    console.log("Launching browser...");
-
-    const browser = await chromium.launch({
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
-    });
-
-    const context = await browser.newContext({
-        viewport: { width: 1280, height: 720 },
-        timezoneId: "Africa/Cairo"
-    });
-
-    const page = await context.newPage();
+    let browser;
+    let page;
 
     try {
+
+        console.log("Launching browser...");
+
+        browser = await chromium.launch({
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        });
+
+        const context = await browser.newContext({
+            viewport: { width: 1280, height: 720 },
+            timezoneId: "Africa/Cairo"
+        });
+
+        page = await context.newPage();
 
         await login(page);
 
@@ -91,17 +94,25 @@ const login = require("./login");
 
         console.error("Error during execution:", err);
 
-        await page.screenshot({
-            path: "error.png",
-            fullPage: true
-        });
+        if (page) {
+            try {
+                await page.screenshot({
+                    path: "error.png",
+                    fullPage: true
+                });
+            } catch (sErr) {
+                console.error("Failed to save screenshot:", sErr);
+            }
+        }
 
         process.exitCode = 1;
 
     }
     finally {
 
-        await browser.close();
+        if (browser) {
+            await browser.close().catch(() => {});
+        }
 
     }
 
