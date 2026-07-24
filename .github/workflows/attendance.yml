@@ -5,10 +5,10 @@ on:
   schedule:
 
     # 7:51 PM Egypt (16:51 UTC during UTC+3)
-    - cron: "51 16 * * *"
+    - cron: "0 17 * * *"
 
     # 7:55 PM Egypt (16:55 UTC during UTC+3)
-    - cron: "55 16 * * *"
+    - cron: "2 17 * * *"
 
   workflow_dispatch:
 
@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: error-screenshot
-          path: error.png
+          path: error.png
