@@ -1,0 +1,38 @@
+name: Attendance Bot
+
+on:
+
+  schedule:
+
+    # 9 AM Egypt (06:00 UTC during UTC+3)
+    - cron: "0 6 * * 0-4"
+
+    # 5 PM Egypt (14:00 UTC during UTC+3)
+    - cron: "0 14 * * 0-4"
+
+  workflow_dispatch:
+
+jobs:
+
+  attendance:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - run: npx playwright install chromium
+
+      - run: node attendance.js
+
+        env:
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
