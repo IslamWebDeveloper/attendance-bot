@@ -3,11 +3,11 @@ name: Attendance Bot
 on:
 
   schedule:
-    # 8:15 PM Egypt (17:15 UTC)
-    - cron: "15 17 * * *"
+    # 8:18 PM Egypt (17:18 UTC)
+    - cron: "18 17 * * *"
 
-    # 8:17 PM Egypt (17:17 UTC)
-    - cron: "17 17 * * *"
+    # 8:20 PM Egypt (17:20 UTC)
+    - cron: "20 17 * * *"
 
   workflow_dispatch:
 
