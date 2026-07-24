@@ -3,6 +3,7 @@ name: Attendance Bot
 on:
 
   schedule:
+
     # 8:18 PM Egypt (17:18 UTC)
     - cron: "18 17 * * *"
 
@@ -24,11 +25,11 @@ jobs:
       - uses: actions/setup-node@v4
 
         with:
-          node-version: 20
+          node-version: 22
 
       - run: npm install
 
-      - run: npx playwright install chromium
+      - run: npx playwright install --with-deps chromium
 
       - run: node attendance.js
 
@@ -42,3 +43,4 @@ jobs:
         with:
           name: error-screenshot
           path: error.png
+          if-no-files-found: ignore
