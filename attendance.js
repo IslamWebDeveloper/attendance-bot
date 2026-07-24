@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ override: true });
 
 const { chromium } = require("playwright");
 
@@ -26,17 +26,16 @@ const login = require("./login");
 
         console.log("Logged in successfully");
 
-        await page.goto(
-            "https://techsup-erp.com/my/attendance",
-            {
-                waitUntil: "networkidle"
-            }
-        );
+        await page.goto("https://techsup-erp.com/my/attendance", {
+            waitUntil: "networkidle"
+        });
 
-        // Check In button locator
-        const checkInBtn = page.locator('text=/check in/i').first();
-        // Check Out button locator
-        const checkOutBtn = page.locator('text=/check out/i').first();
+        console.log("Current URL:", page.url());
+        console.log("Page title:", await page.title());
+
+        // Target action button specifically (.btn elements, ignoring table headers)
+        const checkInBtn = page.locator('a.btn, button.btn, .btn').filter({ hasText: /check in/i }).first();
+        const checkOutBtn = page.locator('a.btn, button.btn, .btn').filter({ hasText: /check out/i }).first();
 
         let isCheckInVisible = false;
         let isCheckOutVisible = false;

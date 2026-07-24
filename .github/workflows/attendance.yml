@@ -4,11 +4,11 @@ on:
 
   schedule:
 
-    # 7:51 PM Egypt (16:51 UTC during UTC+3)
-    - cron: cron: "3 17 * * *"
+    # 8:03 PM Egypt (17:03 UTC during UTC+3)
+    - cron: "3 17 * * *"
 
-    # 7:55 PM Egypt (16:55 UTC during UTC+3)
-    - cron: cron: "5 17 * * *"
+    # 8:05 PM Egypt (17:05 UTC during UTC+3)
+    - cron: "5 17 * * *"
 
   workflow_dispatch:
 
