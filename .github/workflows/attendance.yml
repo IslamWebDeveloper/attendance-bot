@@ -4,11 +4,8 @@ on:
 
   schedule:
 
-    # 9:00 AM Egypt (06:00 UTC) - Every day (Saturday to Friday)
-    - cron: "0 6 * * *"
-
-    # 5:00 PM Egypt (14:00 UTC) - Every day (Saturday to Friday)
-    - cron: "0 14 * * *"
+    # Every 5 minutes (7 days a week)
+    - cron: "*/5 * * * *"
 
   workflow_dispatch:
 
