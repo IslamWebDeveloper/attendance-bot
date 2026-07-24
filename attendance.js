@@ -9,16 +9,22 @@ const login = require("./login");
     console.log("Launching browser...");
 
     const browser = await chromium.launch({
-        headless: true
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"]
     });
 
-    const page = await browser.newPage();
+    const context = await browser.newContext({
+        viewport: { width: 1280, height: 720 },
+        timezoneId: "Africa/Cairo"
+    });
+
+    const page = await context.newPage();
 
     try {
 
         await login(page);
 
-        console.log("Logged in");
+        console.log("Logged in successfully");
 
         await page.goto(
             "https://techsup-erp.com/my/attendance",
@@ -27,50 +33,77 @@ const login = require("./login");
             }
         );
 
-        // Check In
-        if (await page.locator('text=Check in').count()) {
+        // Check In button locator
+        const checkInBtn = page.locator('text=/check in/i').first();
+        // Check Out button locator
+        const checkOutBtn = page.locator('text=/check out/i').first();
 
-            console.log("Checking In");
+        let isCheckInVisible = false;
+        let isCheckOutVisible = false;
 
-            await page.locator('text=Check in').click();
+        try {
+            await checkInBtn.waitFor({ state: "visible", timeout: 5000 });
+            isCheckInVisible = true;
+        } catch (e) {
+            // Check In button not visible
+        }
+
+        if (!isCheckInVisible) {
+            try {
+                await checkOutBtn.waitFor({ state: "visible", timeout: 5000 });
+                isCheckOutVisible = true;
+            } catch (e) {
+                // Check Out button not visible
+            }
+        }
+
+        if (isCheckInVisible) {
+
+            console.log("Checking In...");
+
+            await checkInBtn.click();
 
             await page.waitForLoadState("networkidle");
 
-            console.log("Done");
+            console.log("Check In completed successfully.");
 
         }
 
-        // Check Out
-        else if (await page.locator('text=Check out').count()) {
+        else if (isCheckOutVisible) {
 
-            console.log("Checking Out");
+            console.log("Checking Out...");
 
-            await page.locator('text=Check out').click();
+            await checkOutBtn.click();
 
             await page.waitForLoadState("networkidle");
 
-            console.log("Done");
+            console.log("Check Out completed successfully.");
 
         }
 
         else {
 
-            console.log("No button found.");
+            console.log("No Check in or Check out button found.");
 
         }
 
     }
     catch(err){
 
-        console.log(err);
+        console.error("Error during execution:", err);
 
         await page.screenshot({
-            path:"error.png",
-            fullPage:true
+            path: "error.png",
+            fullPage: true
         });
+
+        process.exitCode = 1;
+
+    }
+    finally {
+
+        await browser.close();
 
     }
 
-    await browser.close();
-
-})();
+})();
