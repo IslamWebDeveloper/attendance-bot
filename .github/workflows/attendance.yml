@@ -4,11 +4,11 @@ on:
 
   schedule:
 
-    # 10:00 PM Egypt (19:00 UTC) - Check In
-    - cron: "0 19 * * *"
+    # 8:00 AM Cairo (05:00 UTC)
+    - cron: "0 5 * * *"
 
-    # 11:00 PM Egypt (20:00 UTC) - Check Out
-    - cron: "0 20 * * *"
+    # 5:00 PM Cairo (14:00 UTC)
+    - cron: "0 14 * * *"
 
   workflow_dispatch:
 
