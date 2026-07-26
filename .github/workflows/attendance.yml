@@ -4,11 +4,11 @@ on:
 
   schedule:
 
-    # 8:00 AM Cairo (05:00 UTC)
-    - cron: "0 5 * * *"
+    # 7:05 PM Cairo (16:05 UTC)
+    - cron: "5 16 * * 0-4"
 
-    # 5:00 PM Cairo (14:00 UTC)
-    - cron: "0 14 * * *"
+    # 7:10 PM Cairo (16:10 UTC)
+    - cron: "10 16 * * 0-4"
 
   workflow_dispatch:
 

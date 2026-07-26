@@ -27,27 +27,47 @@ const getCairoDateTime = () => {
 
 (async () => {
 
-    const { hour, dayName } = getCairoDateTime();
+    const { hour, minute, dayName } = getCairoDateTime();
     const allowedDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
     const isBypass = process.env.BYPASS_TIME_CHECK === "true";
 
-    console.log(`Current Cairo time: Day = ${dayName}, Hour = ${hour}`);
+    console.log(`Current Cairo time: Day = ${dayName}, Hour = ${hour}, Minute = ${minute}`);
 
+    // if (!isBypass) {
+    //     if (!allowedDays.includes(dayName)) {
+    //         console.log(`Today is ${dayName}. Attendance bot only runs Sunday to Thursday. Exiting.`);
+    //         process.exit(0);
+    //     }
+
+    //     if (hour !== 9 && hour !== 17) {
+    //         console.log(`Current Cairo hour is ${hour}. Attendance bot only checks in at 9 AM and checks out at 5 PM Cairo. Exiting.`);
+    //         process.exit(0);
+    //     }
+    // }
+
+    let targetAction = "any";
     if (!isBypass) {
-        if (!allowedDays.includes(dayName)) {
+        const isAllowedDay = allowedDays.includes(dayName);
+        const isAllowedHour = hour === 19;
+        const isCheckInTime = hour === 19 && minute === 5;
+        const isCheckOutTime = hour === 19 && minute === 10;
+
+        if (!isAllowedDay) {
             console.log(`Today is ${dayName}. Attendance bot only runs Sunday to Thursday. Exiting.`);
             process.exit(0);
         }
 
-        if (hour !== 9 && hour !== 17) {
-            console.log(`Current Cairo hour is ${hour}. Attendance bot only checks in at 9 AM and checks out at 5 PM Cairo. Exiting.`);
+        if (!isAllowedHour) {
+            console.log(`Current Cairo hour is ${hour}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
             process.exit(0);
         }
-    }
 
-    let targetAction = "any";
-    if (!isBypass) {
-        targetAction = hour === 9 ? "checkin" : "checkout";
+        if (!isCheckInTime && !isCheckOutTime) {
+            console.log(`Current Cairo time is ${hour}:${minute}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
+            process.exit(0);
+        }
+
+        targetAction = isCheckInTime ? "checkin" : "checkout";
     }
 
     console.log(`Target action: ${targetAction}`);
@@ -89,52 +109,68 @@ const getCairoDateTime = () => {
         console.log("Current URL:", page.url());
         console.log("Page title:", await page.title());
 
-        // Target action button specifically (.btn elements under balance card, ignoring table headers)
-        const checkInBtn = page.locator('.tso_balance_card button, .tso_balance_card a, .tso_balance_card .btn').filter({ hasText: /check in/i }).first();
-        const checkOutBtn = page.locator('.tso_balance_card button, .tso_balance_card a, .tso_balance_card .btn').filter({ hasText: /check out/i }).first();
+        // Target the real attendance forms directly and use whichever action is actually present.
+        const checkInBtn = page.locator('form[action*="/my/attendance/checkin"] button, form[action*="/my/attendance/checkin"] a, form[action*="/my/attendance/checkin"] .btn').first();
+        const checkOutBtn = page.locator('form[action*="/my/attendance/checkout"] button, form[action*="/my/attendance/checkout"] a, form[action*="/my/attendance/checkout"] .btn').first();
+        const statusText = await page.locator('.tso_balance_card .tso_remaining').textContent().catch(() => "");
 
-        let isCheckInVisible = false;
-        let isCheckOutVisible = false;
+        let actionButton = null;
+        let actionLabel = "";
+
+        const preferredActions = [];
+        const normalizedStatus = (statusText || "").toLowerCase();
+
+        if (normalizedStatus.includes("checked in") || normalizedStatus.includes("open")) {
+            preferredActions.push({ locator: checkOutBtn, label: "Check Out" });
+        } else {
+            preferredActions.push({ locator: checkInBtn, label: "Check In" });
+        }
 
         if (targetAction === "any" || targetAction === "checkin") {
+            preferredActions.unshift({ locator: checkInBtn, label: "Check In" });
+        }
+        if (targetAction === "any" || targetAction === "checkout") {
+            preferredActions.push({ locator: checkOutBtn, label: "Check Out" });
+        }
+
+        for (const candidate of preferredActions) {
             try {
-                await checkInBtn.waitFor({ state: "visible", timeout: 5000 });
-                isCheckInVisible = true;
+                await candidate.locator.waitFor({ state: "visible", timeout: 3000 });
+                actionButton = candidate.locator;
+                actionLabel = candidate.label;
+                break;
             } catch (e) {
-                // Check In button not visible
+                // Candidate action not visible
             }
         }
 
-        if (!isCheckInVisible && (targetAction === "any" || targetAction === "checkout")) {
-            try {
-                await checkOutBtn.waitFor({ state: "visible", timeout: 5000 });
-                isCheckOutVisible = true;
-            } catch (e) {
-                // Check Out button not visible
+        if (!actionButton) {
+            const fallbackActions = [
+                { locator: checkInBtn, label: "Check In" },
+                { locator: checkOutBtn, label: "Check Out" }
+            ];
+
+            for (const candidate of fallbackActions) {
+                try {
+                    await candidate.locator.waitFor({ state: "visible", timeout: 3000 });
+                    actionButton = candidate.locator;
+                    actionLabel = candidate.label;
+                    break;
+                } catch (e) {
+                    // Fallback action not visible
+                }
             }
         }
 
-        if (isCheckInVisible) {
+        if (actionButton) {
 
-            console.log("Checking In...");
+            console.log(`${actionLabel}...`);
 
-            await checkInBtn.click();
-
-            await page.waitForLoadState("networkidle");
-
-            console.log("Check In completed successfully.");
-
-        }
-
-        else if (isCheckOutVisible) {
-
-            console.log("Checking Out...");
-
-            await checkOutBtn.click();
+            await actionButton.click();
 
             await page.waitForLoadState("networkidle");
 
-            console.log("Check Out completed successfully.");
+            console.log(`${actionLabel} completed successfully.`);
 
         }
 
@@ -171,4 +207,4 @@ const getCairoDateTime = () => {
 
     }
 
-})();
+})();
