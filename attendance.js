@@ -52,20 +52,20 @@ const getCairoDateTime = () => {
         const isCheckInTime = hour === 19 && minute === 5;
         const isCheckOutTime = hour === 19 && minute === 10;
 
-        if (!isAllowedDay) {
-            console.log(`Today is ${dayName}. Attendance bot only runs Sunday to Thursday. Exiting.`);
-            process.exit(0);
-        }
+        // if (!isAllowedDay) {
+        //     console.log(`Today is ${dayName}. Attendance bot only runs Sunday to Thursday. Exiting.`);
+        //     process.exit(0);
+        // }
 
-        if (!isAllowedHour) {
-            console.log(`Current Cairo hour is ${hour}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
-            process.exit(0);
-        }
+        // if (!isAllowedHour) {
+        //     console.log(`Current Cairo hour is ${hour}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
+        //     process.exit(0);
+        // }
 
-        if (!isCheckInTime && !isCheckOutTime) {
-            console.log(`Current Cairo time is ${hour}:${minute}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
-            process.exit(0);
-        }
+        // if (!isCheckInTime && !isCheckOutTime) {
+        //     console.log(`Current Cairo time is ${hour}:${minute}. Attendance bot only runs at 7:05 PM and 7:10 PM Cairo. Exiting.`);
+        //     process.exit(0);
+        // }
 
         targetAction = isCheckInTime ? "checkin" : "checkout";
     }
